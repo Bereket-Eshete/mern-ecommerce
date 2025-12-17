@@ -46,13 +46,13 @@ const PurchaseSuccessPage = () => {
 			setIsProcessing(false);
 			setError("Payment was cancelled or failed");
 		} else if (tx_ref && !status) {
-			// Sometimes Chapa only sends tx_ref, assume success
+			// Sometimes Chapa only sends tx_ref, verify payment
 			handleCheckoutSuccess(tx_ref);
 		} else {
-			// If no parameters, assume success and clear cart
-			console.log('No payment parameters found, assuming success');
-			clearCart();
+			// No valid payment parameters - redirect to home
+			console.log('No payment parameters found, redirecting to home');
 			setIsProcessing(false);
+			setError("No payment information found. Please complete a purchase first.");
 		}
 	}, [clearCart]);
 

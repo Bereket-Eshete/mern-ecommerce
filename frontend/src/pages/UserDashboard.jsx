@@ -2,7 +2,7 @@ import { User, ShoppingBag, CreditCard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "../lib/axios";
-import { useAuthStore } from "../stores/useAuthStore";
+import { useUserStore } from "../stores/useUserStore";
 
 const tabs = [
 	{ id: "profile", label: "Profile", icon: User },
@@ -15,7 +15,7 @@ const UserDashboard = () => {
 	const [orders, setOrders] = useState([]);
 	const [stats, setStats] = useState({});
 	const [loading, setLoading] = useState(false);
-	const { user } = useAuthStore();
+	const { user } = useUserStore();
 
 	useEffect(() => {
 		if (activeTab === "orders") {

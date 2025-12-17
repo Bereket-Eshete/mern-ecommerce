@@ -42,13 +42,15 @@ const Navbar = () => {
 										</span>
 									)}
 								</Link>
-								<Link
-									to={"/dashboard"}
-									className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out flex items-center'
-								>
-									<User className='inline-block mr-1' size={20} />
-									<span className='hidden sm:inline'>Dashboard</span>
-								</Link>
+								{!isAdmin && (
+									<Link
+										to={"/dashboard"}
+										className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out flex items-center'
+									>
+										<User className='inline-block mr-1' size={20} />
+										<span className='hidden sm:inline'>Dashboard</span>
+									</Link>
+								)}
 							</>
 						)}
 						{isAdmin && (

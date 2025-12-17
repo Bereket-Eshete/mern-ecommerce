@@ -1,7 +1,6 @@
 import { initializePayment, verifyPayment, generateTxRef } from "../lib/chapa.js";
 import Order from "../models/order.model.js";
 import Coupon from "../models/coupon.model.js";
-import User from "../models/user.model.js";
 import { sendPaymentConfirmationEmail } from "../lib/email.js";
 
 export const createCheckoutSession = async (req, res) => {
