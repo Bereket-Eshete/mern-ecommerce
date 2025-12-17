@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LogIn, Mail, Lock, ArrowRight, Loader } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
 
@@ -9,11 +9,16 @@ const LoginPage = () => {
 	const [password, setPassword] = useState("");
 
 	const { login, loading } = useUserStore();
+	const navigate = useNavigate();
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		console.log(email, password);
-		login(email, password);
+		try {
+			await login(email, password);
+			navigate('/');
+		} catch (error) {
+			// Error is already handled in the store
+		}
 	};
 
 	return (
