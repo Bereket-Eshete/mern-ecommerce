@@ -45,8 +45,17 @@ export const createCheckoutSession = async (req, res) => {
 
 		const response = await initializePayment(paymentData);
 
-		// Store order data temporarily (you might want to use Redis or database)
-		// For now, we'll create a pending order
+		// Check if order with this tx_ref already exists
+		const existingOrder = await Order.findOne({ tx_ref: tx_ref });
+		if (existingOrder) {
+			return res.status(200).json({ 
+				checkout_url: response.data.checkout_url,
+				tx_ref: tx_ref,
+				totalAmount: totalAmount 
+			});
+		}
+
+		// Create a pending order
 		const pendingOrder = new Order({
 			user: req.user._id,
 			products: products.map((product) => ({

@@ -5,28 +5,6 @@ const axiosInstance = axios.create({
 	withCredentials: true, // send cookies to the server
 });
 
-// Add request interceptor for debugging
-axiosInstance.interceptors.request.use(
-	(config) => {
-		console.log('Making request to:', config.baseURL + config.url);
-		return config;
-	},
-	(error) => {
-		console.error('Request error:', error);
-		return Promise.reject(error);
-	}
-);
-
-// Add response interceptor for debugging
-axiosInstance.interceptors.response.use(
-	(response) => {
-		console.log('Response received:', response.status, response.data);
-		return response;
-	},
-	(error) => {
-		console.error('Response error:', error.response?.status, error.response?.data || error.message);
-		return Promise.reject(error);
-	}
-);
+// Clean axios instance without debug logging
 
 export default axiosInstance;

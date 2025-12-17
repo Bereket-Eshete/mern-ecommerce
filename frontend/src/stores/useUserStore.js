@@ -116,34 +116,14 @@ export const useUserStore = create((set, get) => ({
 
 // TODO: Implement the axios interceptors for refreshing access token
 
-// Axios interceptor for token refresh
-let refreshPromise = null;
-
+// Simple axios interceptor - no automatic refresh to prevent loops
 axios.interceptors.response.use(
 	(response) => response,
-	async (error) => {
-		const originalRequest = error.config;
-		if (error.response?.status === 401 && !originalRequest._retry) {
-			originalRequest._retry = true;
-
-			try {
-				// If a refresh is already in progress, wait for it to complete
-				if (refreshPromise) {
-					await refreshPromise;
-					return axios(originalRequest);
-				}
-
-				// Start a new refresh process
-				refreshPromise = useUserStore.getState().refreshToken();
-				await refreshPromise;
-				refreshPromise = null;
-
-				return axios(originalRequest);
-			} catch (refreshError) {
-				// If refresh fails, redirect to login or handle as needed
-				useUserStore.getState().logout();
-				return Promise.reject(refreshError);
-			}
+	(error) => {
+		// Only handle 401 for auth endpoints, not all requests
+		if (error.response?.status === 401 && error.config?.url?.includes('/auth/')) {
+			// Clear user state on auth failure
+			useUserStore.getState().set({ user: null, checkingAuth: false });
 		}
 		return Promise.reject(error);
 	}

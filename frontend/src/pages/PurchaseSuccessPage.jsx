@@ -31,17 +31,26 @@ const PurchaseSuccessPage = () => {
 
 		// Get tx_ref from URL parameters (Chapa returns this)
 		const urlParams = new URLSearchParams(window.location.search);
-		const tx_ref = urlParams.get("trx_ref") || urlParams.get("tx_ref");
-		const status = urlParams.get("status");
+		console.log('All URL params:', Object.fromEntries(urlParams));
+		console.log('Full URL:', window.location.href);
 		
-		if (tx_ref && status === "success") {
+		// Try different parameter names that Chapa might use
+		const tx_ref = urlParams.get("trx_ref") || urlParams.get("tx_ref") || urlParams.get("transaction_ref");
+		const status = urlParams.get("status") || urlParams.get("payment_status");
+		
+		console.log('Extracted:', { tx_ref, status });
+		
+		if (tx_ref && (status === "success" || status === "successful")) {
 			handleCheckoutSuccess(tx_ref);
-		} else if (status === "failed" || status === "cancelled") {
+		} else if (status === "failed" || status === "cancelled" || status === "canceled") {
 			setIsProcessing(false);
 			setError("Payment was cancelled or failed");
+		} else if (tx_ref && !status) {
+			// Sometimes Chapa only sends tx_ref, assume success
+			handleCheckoutSuccess(tx_ref);
 		} else {
 			setIsProcessing(false);
-			setError("Invalid payment response");
+			setError(`Invalid payment response. Params: ${JSON.stringify(Object.fromEntries(urlParams))}`);
 		}
 	}, [clearCart]);
 
