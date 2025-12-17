@@ -12,16 +12,19 @@ export const useUserStore = create((set, get) => ({
 
 		if (password !== confirmPassword) {
 			set({ loading: false });
-			return toast.error("Passwords do not match");
+			toast.error("Passwords do not match");
+			throw new Error("Passwords do not match");
 		}
 
 		try {
 			const res = await axios.post("/auth/signup", { name, email, password });
 			set({ loading: false });
 			toast.success(res.data.message || "Account created! Please check your email to verify.");
+			return res.data;
 		} catch (error) {
 			set({ loading: false });
 			toast.error(error.response.data.message || "An error occurred");
+			throw error;
 		}
 	},
 	login: async (email, password) => {
@@ -68,6 +71,42 @@ export const useUserStore = create((set, get) => ({
 			return response.data;
 		} catch (error) {
 			set({ user: null, checkingAuth: false });
+			throw error;
+		}
+	},
+
+	verifyEmail: async (code) => {
+		set({ loading: true });
+		try {
+			const response = await axios.post("/auth/verify-email", { code });
+			set({ loading: false });
+			return response.data;
+		} catch (error) {
+			set({ loading: false });
+			throw error;
+		}
+	},
+
+	forgotPassword: async (email) => {
+		set({ loading: true });
+		try {
+			const response = await axios.post("/auth/forgot-password", { email });
+			set({ loading: false });
+			return response.data;
+		} catch (error) {
+			set({ loading: false });
+			throw error;
+		}
+	},
+
+	resetPassword: async (code, password) => {
+		set({ loading: true });
+		try {
+			const response = await axios.post("/auth/reset-password", { code, password });
+			set({ loading: false });
+			return response.data;
+		} catch (error) {
+			set({ loading: false });
 			throw error;
 		}
 	},

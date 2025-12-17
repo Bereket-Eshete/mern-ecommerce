@@ -29,16 +29,14 @@ export const sendVerificationEmail = async (email, name, verificationToken) => {
 			<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
 				<h2 style="color: #333;">Welcome to Our Ecommerce Store!</h2>
 				<p>Hi ${name},</p>
-				<p>Thank you for signing up! Please verify your email address by clicking the button below:</p>
+				<p>Thank you for signing up! Please verify your email address using the code below:</p>
 				<div style="text-align: center; margin: 30px 0;">
-					<a href="${process.env.CLIENT_URL}/verify-email?token=${verificationToken}" 
-					   style="background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
-						Verify Email
-					</a>
+					<div style="background-color: #f8f9fa; border: 2px dashed #007bff; padding: 20px; border-radius: 10px; display: inline-block;">
+						<h1 style="color: #007bff; margin: 0; font-size: 32px; letter-spacing: 5px;">${verificationToken}</h1>
+					</div>
 				</div>
-				<p>If the button doesn't work, copy and paste this link into your browser:</p>
-				<p>${process.env.CLIENT_URL}/verify-email?token=${verificationToken}</p>
-				<p>This link will expire in 24 hours.</p>
+				<p>Enter this 6-digit code in the verification page to complete your registration.</p>
+				<p>This code will expire in 10 minutes.</p>
 				<p>Best regards,<br>Ecommerce Store Team</p>
 			</div>
 		`;
@@ -70,16 +68,14 @@ export const sendPasswordResetEmail = async (email, name, resetToken) => {
 			<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
 				<h2 style="color: #333;">Password Reset Request</h2>
 				<p>Hi ${name},</p>
-				<p>You requested to reset your password. Click the button below to set a new password:</p>
+				<p>You requested to reset your password. Use the code below to reset your password:</p>
 				<div style="text-align: center; margin: 30px 0;">
-					<a href="${process.env.CLIENT_URL}/reset-password?token=${resetToken}" 
-					   style="background-color: #dc3545; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
-						Reset Password
-					</a>
+					<div style="background-color: #f8f9fa; border: 2px dashed #dc3545; padding: 20px; border-radius: 10px; display: inline-block;">
+						<h1 style="color: #dc3545; margin: 0; font-size: 32px; letter-spacing: 5px;">${resetToken}</h1>
+					</div>
 				</div>
-				<p>If the button doesn't work, copy and paste this link into your browser:</p>
-				<p>${process.env.CLIENT_URL}/reset-password?token=${resetToken}</p>
-				<p>This link will expire in 1 hour.</p>
+				<p>Enter this 6-digit code in the password reset page.</p>
+				<p>This code will expire in 10 minutes.</p>
 				<p>If you didn't request this, please ignore this email.</p>
 				<p>Best regards,<br>Ecommerce Store Team</p>
 			</div>

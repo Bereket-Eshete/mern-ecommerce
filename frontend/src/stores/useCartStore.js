@@ -36,11 +36,12 @@ export const useCartStore = create((set, get) => ({
 	getCartItems: async () => {
 		try {
 			const res = await axios.get("/cart");
-			set({ cart: res.data });
+			set({ cart: res.data || [] });
 			get().calculateTotals();
 		} catch (error) {
 			set({ cart: [] });
-			toast.error(error.response.data.message || "An error occurred");
+			console.error("Error fetching cart:", error);
+			// Don't show error toast for cart fetch failures
 		}
 	},
 	clearCart: async () => {
@@ -84,6 +85,10 @@ export const useCartStore = create((set, get) => ({
 	},
 	calculateTotals: () => {
 		const { cart, coupon } = get();
+		if (!Array.isArray(cart)) {
+			set({ subtotal: 0, total: 0 });
+			return;
+		}
 		const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 		let total = subtotal;
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserPlus, Mail, Lock, User, ArrowRight, Loader } from "lucide-react";
 import { motion } from "framer-motion";
 import { useUserStore } from "../stores/useUserStore";
@@ -13,10 +13,17 @@ const SignUpPage = () => {
 	});
 
 	const { signup, loading } = useUserStore();
+	const navigate = useNavigate();
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		signup(formData);
+		try {
+			await signup(formData);
+			// Navigate to verify email page after successful signup
+			navigate('/verify-email');
+		} catch (error) {
+			// Error is already handled in the store
+		}
 	};
 
 	return (

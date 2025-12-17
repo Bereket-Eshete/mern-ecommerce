@@ -38,20 +38,20 @@ export const signup = async (req, res) => {
 		if (userExists) {
 			return res.status(400).json({ message: "User already exists" });
 		}
-		// Generate email verification token
-		const verificationToken = crypto.randomBytes(32).toString('hex');
-		const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+		// Generate 6-digit verification code
+		const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+		const verificationExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
 		const user = await User.create({ 
 			name, 
 			email, 
 			password,
-			emailVerificationToken: verificationToken,
-			emailVerificationExpires: verificationExpires
+			verificationCode: verificationCode,
+			verificationCodeExpiresAt: verificationExpires
 		});
 
 		// Send verification email
-		await sendVerificationEmail(email, name, verificationToken);
+		await sendVerificationEmail(email, name, verificationCode);
 
 		// Don't log user in until email is verified
 		res.status(201).json({
@@ -144,24 +144,24 @@ export const getProfile = async (req, res) => {
 
 export const verifyEmail = async (req, res) => {
 	try {
-		const { token } = req.query;
+		const { code } = req.body;
 
-		if (!token) {
-			return res.status(400).json({ message: "Verification token is required" });
+		if (!code) {
+			return res.status(400).json({ message: "Verification code is required" });
 		}
 
 		const user = await User.findOne({
-			emailVerificationToken: token,
-			emailVerificationExpires: { $gt: Date.now() }
+			verificationCode: code,
+			verificationCodeExpiresAt: { $gt: Date.now() }
 		});
 
 		if (!user) {
-			return res.status(400).json({ message: "Invalid or expired verification token" });
+			return res.status(400).json({ message: "Invalid or expired verification code" });
 		}
 
 		user.isEmailVerified = true;
-		user.emailVerificationToken = undefined;
-		user.emailVerificationExpires = undefined;
+		user.verificationCode = undefined;
+		user.verificationCodeExpiresAt = undefined;
 		await user.save();
 
 		res.json({ message: "Email verified successfully!" });
@@ -185,16 +185,16 @@ export const forgotPassword = async (req, res) => {
 			return res.status(404).json({ message: "User not found" });
 		}
 
-		// Generate reset token
-		const resetToken = crypto.randomBytes(32).toString('hex');
-		const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+		// Generate 6-digit reset code
+		const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+		const resetExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-		user.passwordResetToken = resetToken;
+		user.passwordResetToken = resetCode;
 		user.passwordResetExpires = resetExpires;
 		await user.save();
 
 		// Send reset email
-		await sendPasswordResetEmail(email, user.name, resetToken);
+		await sendPasswordResetEmail(email, user.name, resetCode);
 
 		res.json({ message: "Password reset email sent successfully!" });
 	} catch (error) {
@@ -205,11 +205,10 @@ export const forgotPassword = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
 	try {
-		const { token } = req.query;
-		const { password } = req.body;
+		const { code, password } = req.body;
 
-		if (!token || !password) {
-			return res.status(400).json({ message: "Token and new password are required" });
+		if (!code || !password) {
+			return res.status(400).json({ message: "Code and new password are required" });
 		}
 
 		if (password.length < 6) {
@@ -217,12 +216,12 @@ export const resetPassword = async (req, res) => {
 		}
 
 		const user = await User.findOne({
-			passwordResetToken: token,
+			passwordResetToken: code,
 			passwordResetExpires: { $gt: Date.now() }
 		});
 
 		if (!user) {
-			return res.status(400).json({ message: "Invalid or expired reset token" });
+			return res.status(400).json({ message: "Invalid or expired reset code" });
 		}
 
 		user.password = password;

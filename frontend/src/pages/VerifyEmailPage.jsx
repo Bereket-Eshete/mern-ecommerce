@@ -1,92 +1,111 @@
-import { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { CheckCircle, XCircle, Loader } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { CheckCircle, Mail, Loader } from "lucide-react";
 import axios from "../lib/axios";
 import toast from "react-hot-toast";
 
 const VerifyEmailPage = () => {
-	const [searchParams] = useSearchParams();
+	const [code, setCode] = useState(["", "", "", "", "", ""]);
+	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
-	const [status, setStatus] = useState("loading");
-	const [message, setMessage] = useState("");
 
-	useEffect(() => {
-		const verifyEmail = async () => {
-			const token = searchParams.get("token");
-			
-			if (!token) {
-				setStatus("error");
-				setMessage("No verification token provided");
-				return;
-			}
+	const handleChange = (element, index) => {
+		if (isNaN(element.value)) return false;
 
-			try {
-				const response = await axios.get(`/auth/verify-email?token=${token}`);
-				setStatus("success");
-				setMessage(response.data.message);
-				toast.success("Email verified successfully!");
-				
-				setTimeout(() => {
-					navigate("/login");
-				}, 3000);
-			} catch (error) {
-				setStatus("error");
-				setMessage(error.response?.data?.message || "Email verification failed");
-				toast.error("Email verification failed");
-			}
-		};
+		setCode([...code.map((d, idx) => (idx === index ? element.value : d))]);
 
-		verifyEmail();
-	}, [searchParams, navigate]);
+		// Focus next input
+		if (element.nextSibling && element.value !== "") {
+			element.nextSibling.focus();
+		}
+	};
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		const verificationCode = code.join("");
+		
+		if (verificationCode.length !== 6) {
+			toast.error("Please enter all 6 digits");
+			return;
+		}
+
+		setLoading(true);
+		try {
+			const response = await axios.post("/auth/verify-email", { code: verificationCode });
+			toast.success(response.data.message);
+			navigate("/login");
+		} catch (error) {
+			toast.error(error.response?.data?.message || "Verification failed");
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	return (
-		<div className='flex flex-col justify-center py-12 sm:px-6 lg:px-8'>
+		<div className="flex flex-col justify-center py-12 sm:px-6 lg:px-8">
 			<motion.div
-				className='sm:mx-auto sm:w-full sm:max-w-md'
+				className="sm:mx-auto sm:w-full sm:max-w-md"
 				initial={{ opacity: 0, y: -20 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.8 }}
 			>
-				<h2 className='mt-6 text-center text-3xl font-extrabold text-emerald-400'>Email Verification</h2>
+				<div className="flex justify-center">
+					<Mail className="h-12 w-12 text-emerald-400" />
+				</div>
+				<h2 className="mt-6 text-center text-3xl font-extrabold text-emerald-400">
+					Verify Your Email
+				</h2>
+				<p className="mt-2 text-center text-sm text-gray-400">
+					We've sent a 6-digit code to your email address
+				</p>
 			</motion.div>
 
 			<motion.div
-				className='mt-8 sm:mx-auto sm:w-full sm:max-w-md'
+				className="mt-8 sm:mx-auto sm:w-full sm:max-w-md"
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.8, delay: 0.2 }}
 			>
-				<div className='bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10'>
-					<div className="text-center">
-						{status === "loading" && (
-							<div className="space-y-4">
-								<Loader className="mx-auto h-12 w-12 text-emerald-400 animate-spin" />
-								<p className="text-gray-300">Verifying your email...</p>
+				<div className="bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
+					<form onSubmit={handleSubmit} className="space-y-6">
+						<div>
+							<label className="block text-sm font-medium text-gray-300 text-center mb-4">
+								Enter verification code
+							</label>
+							<div className="flex justify-center space-x-2">
+								{code.map((data, index) => (
+									<input
+										key={index}
+										type="text"
+										maxLength="1"
+										value={data}
+										onChange={(e) => handleChange(e.target, index)}
+										onFocus={(e) => e.target.select()}
+										className="w-12 h-12 text-center text-xl font-bold bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-white"
+									/>
+								))}
 							</div>
-						)}
-						
-						{status === "success" && (
-							<div className="space-y-4">
-								<CheckCircle className="mx-auto h-12 w-12 text-emerald-400" />
-								<p className="text-emerald-400 font-medium">{message}</p>
-								<p className="text-gray-300">Redirecting to login page...</p>
-							</div>
-						)}
-						
-						{status === "error" && (
-							<div className="space-y-4">
-								<XCircle className="mx-auto h-12 w-12 text-red-400" />
-								<p className="text-red-400 font-medium">{message}</p>
-								<button
-									onClick={() => navigate("/login")}
-									className="w-full bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 transition duration-200"
-								>
-									Go to Login
-								</button>
-							</div>
-						)}
-					</div>
+						</div>
+
+						<button
+							type="submit"
+							disabled={loading}
+							className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
+						>
+							{loading ? (
+								<>
+									<Loader className="mr-2 h-5 w-5 animate-spin" />
+									Verifying...
+								</>
+							) : (
+								<>
+									<CheckCircle className="mr-2 h-5 w-5" />
+									Verify Email
+								</>
+							)}
+						</button>
+					</form>
 				</div>
 			</motion.div>
 		</div>
