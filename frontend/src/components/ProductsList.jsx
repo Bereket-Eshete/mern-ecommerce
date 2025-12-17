@@ -1,11 +1,32 @@
 import { motion } from "framer-motion";
 import { Trash, Star } from "lucide-react";
 import { useProductStore } from "../stores/useProductStore";
+import { useState } from "react";
 
 const ProductsList = () => {
 	const { deleteProduct, toggleFeaturedProduct, products } = useProductStore();
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [productToDelete, setProductToDelete] = useState(null);
 
 	console.log("products", products);
+
+	const handleDeleteClick = (product) => {
+		setProductToDelete(product);
+		setShowDeleteModal(true);
+	};
+
+	const confirmDelete = () => {
+		if (productToDelete) {
+			deleteProduct(productToDelete._id);
+			setShowDeleteModal(false);
+			setProductToDelete(null);
+		}
+	};
+
+	const cancelDelete = () => {
+		setShowDeleteModal(false);
+		setProductToDelete(null);
+	};
 
 	return (
 		<motion.div
@@ -86,7 +107,7 @@ const ProductsList = () => {
 							</td>
 							<td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
 								<button
-									onClick={() => deleteProduct(product._id)}
+									onClick={() => handleDeleteClick(product)}
 									className='text-red-400 hover:text-red-300'
 								>
 									<Trash className='h-5 w-5' />
@@ -96,6 +117,32 @@ const ProductsList = () => {
 					))}
 				</tbody>
 			</table>
+
+			{/* Delete Confirmation Modal */}
+			{showDeleteModal && (
+				<div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+					<div className='bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4'>
+						<h3 className='text-lg font-semibold text-white mb-4'>Confirm Delete</h3>
+						<p className='text-gray-300 mb-6'>
+							Are you sure you want to delete "{productToDelete?.name}"? This action cannot be undone.
+						</p>
+						<div className='flex justify-end space-x-4'>
+							<button
+								onClick={cancelDelete}
+								className='px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors'
+							>
+								Cancel
+							</button>
+							<button
+								onClick={confirmDelete}
+								className='px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors'
+							>
+								Delete
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 		</motion.div>
 	);
 };
