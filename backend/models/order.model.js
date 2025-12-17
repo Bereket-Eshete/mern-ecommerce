@@ -34,6 +34,25 @@ const orderSchema = new mongoose.Schema(
 		stripeSessionId: {
 			type: String,
 			unique: true,
+			sparse: true,
+		},
+		tx_ref: {
+			type: String,
+			unique: true,
+			sparse: true,
+		},
+		status: {
+			type: String,
+			enum: ['pending', 'completed', 'failed'],
+			default: 'pending',
+		},
+		paymentStatus: {
+			type: String,
+			enum: ['pending', 'paid', 'failed'],
+			default: 'pending',
+		},
+		couponCode: {
+			type: String,
 		},
 	},
 	{ timestamps: true }

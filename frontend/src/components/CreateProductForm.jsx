@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { PlusCircle, Upload, Loader } from "lucide-react";
 import { useProductStore } from "../stores/useProductStore";
@@ -15,12 +16,18 @@ const CreateProductForm = () => {
 	});
 
 	const { createProduct, loading } = useProductStore();
+	const navigate = useNavigate();
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		try {
 			await createProduct(newProduct);
+			const category = newProduct.category;
 			setNewProduct({ name: "", description: "", price: "", category: "", image: "" });
+			// Redirect to category page to show the newly created product
+			setTimeout(() => {
+				navigate(`/category/${category}`);
+			}, 1500); // Small delay to let user see the success message
 		} catch {
 			console.log("error creating a product");
 		}

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Loader } from "lucide-react";
 import CategoryItem from "../components/CategoryItem";
 import { useProductStore } from "../stores/useProductStore";
 import FeaturedProducts from "../components/FeaturedProducts";
@@ -14,7 +15,7 @@ const categories = [
 ];
 
 const HomePage = () => {
-	const { fetchFeaturedProducts, products, isLoading } = useProductStore();
+	const { fetchFeaturedProducts, products, loading } = useProductStore();
 
 	useEffect(() => {
 		fetchFeaturedProducts();
@@ -36,7 +37,14 @@ const HomePage = () => {
 					))}
 				</div>
 
-				{!isLoading && products.length > 0 && <FeaturedProducts featuredProducts={products} />}
+				{loading ? (
+					<div className='flex flex-col items-center justify-center py-16'>
+						<Loader className='h-12 w-12 text-emerald-400 animate-spin mb-4' />
+						<p className='text-gray-300 text-lg'>Loading featured products...</p>
+					</div>
+				) : (
+					products.length > 0 && <FeaturedProducts featuredProducts={products} />
+				)}
 			</div>
 		</div>
 	);

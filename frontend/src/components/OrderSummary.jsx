@@ -1,37 +1,21 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useCartStore } from "../stores/useCartStore";
 import { Link } from "react-router-dom";
 import { MoveRight } from "lucide-react";
-import { loadStripe } from "@stripe/stripe-js";
-import axios from "../lib/axios";
-
-const stripePromise = loadStripe(
-	"pk_test_51KZYccCoOZF2UhtOwdXQl3vcizup20zqKqT9hVUIsVzsdBrhqbUI2fE0ZdEVLdZfeHjeyFXtqaNsyCJCmZWnjNZa00PzMAjlcL"
-);
+import CheckoutForm from "./CheckoutForm";
 
 const OrderSummary = () => {
-	const { total, subtotal, coupon, isCouponApplied, cart } = useCartStore();
+	const { total, subtotal, coupon, isCouponApplied } = useCartStore();
+	const [showCheckout, setShowCheckout] = useState(false);
 
 	const savings = subtotal - total;
 	const formattedSubtotal = subtotal.toFixed(2);
 	const formattedTotal = total.toFixed(2);
 	const formattedSavings = savings.toFixed(2);
 
-	const handlePayment = async () => {
-		const stripe = await stripePromise;
-		const res = await axios.post("/payments/create-checkout-session", {
-			products: cart,
-			couponCode: coupon ? coupon.code : null,
-		});
-
-		const session = res.data;
-		const result = await stripe.redirectToCheckout({
-			sessionId: session.id,
-		});
-
-		if (result.error) {
-			console.error("Error:", result.error);
-		}
+	const handlePayment = () => {
+		setShowCheckout(true);
 	};
 
 	return (
@@ -47,13 +31,13 @@ const OrderSummary = () => {
 				<div className='space-y-2'>
 					<dl className='flex items-center justify-between gap-4'>
 						<dt className='text-base font-normal text-gray-300'>Original price</dt>
-						<dd className='text-base font-medium text-white'>${formattedSubtotal}</dd>
+						<dd className='text-base font-medium text-white'>{formattedSubtotal} ETB</dd>
 					</dl>
 
 					{savings > 0 && (
 						<dl className='flex items-center justify-between gap-4'>
 							<dt className='text-base font-normal text-gray-300'>Savings</dt>
-							<dd className='text-base font-medium text-emerald-400'>-${formattedSavings}</dd>
+							<dd className='text-base font-medium text-emerald-400'>-{formattedSavings} ETB</dd>
 						</dl>
 					)}
 
@@ -65,7 +49,7 @@ const OrderSummary = () => {
 					)}
 					<dl className='flex items-center justify-between gap-4 border-t border-gray-600 pt-2'>
 						<dt className='text-base font-bold text-white'>Total</dt>
-						<dd className='text-base font-bold text-emerald-400'>${formattedTotal}</dd>
+						<dd className='text-base font-bold text-emerald-400'>{formattedTotal} ETB</dd>
 					</dl>
 				</div>
 
@@ -89,6 +73,14 @@ const OrderSummary = () => {
 					</Link>
 				</div>
 			</div>
+
+			{showCheckout && (
+				<CheckoutForm
+					onClose={() => setShowCheckout(false)}
+					total={total}
+					coupon={coupon}
+				/>
+			)}
 		</motion.div>
 	);
 };

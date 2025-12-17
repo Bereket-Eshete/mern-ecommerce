@@ -15,8 +15,9 @@ export const useProductStore = create((set) => ({
 				products: [...prevState.products, res.data],
 				loading: false,
 			}));
+			toast.success("Product created successfully!");
 		} catch (error) {
-			toast.error(error.response.data.error);
+			toast.error(error.response?.data?.message || "Failed to create product");
 			set({ loading: false });
 		}
 	},
@@ -48,9 +49,10 @@ export const useProductStore = create((set) => ({
 				products: prevProducts.products.filter((product) => product._id !== productId),
 				loading: false,
 			}));
+			toast.success("Product deleted successfully!");
 		} catch (error) {
 			set({ loading: false });
-			toast.error(error.response.data.error || "Failed to delete product");
+			toast.error(error.response?.data?.message || "Failed to delete product");
 		}
 	},
 	toggleFeaturedProduct: async (productId) => {
@@ -64,9 +66,10 @@ export const useProductStore = create((set) => ({
 				),
 				loading: false,
 			}));
+			toast.success(`Product ${response.data.isFeatured ? 'featured' : 'unfeatured'} successfully!`);
 		} catch (error) {
 			set({ loading: false });
-			toast.error(error.response.data.error || "Failed to update product");
+			toast.error(error.response?.data?.message || "Failed to update product");
 		}
 	},
 	fetchFeaturedProducts: async () => {

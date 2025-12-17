@@ -13,7 +13,14 @@ import analyticsRoutes from "./routes/analytics.route.js";
 
 import { connectDB } from "./lib/db.js";
 
+// Configure dotenv - it should automatically find .env in root
 dotenv.config();
+
+// Debug environment variables
+console.log('Environment check:');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+console.log('MONGO_URI exists:', !!process.env.MONGO_URI);
 
 const app = express();
 const PORT = process.env.PORT || 5000;

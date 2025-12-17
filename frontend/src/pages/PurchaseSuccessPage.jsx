@@ -11,25 +11,37 @@ const PurchaseSuccessPage = () => {
 	const [error, setError] = useState(null);
 
 	useEffect(() => {
-		const handleCheckoutSuccess = async (sessionId) => {
+		const handleCheckoutSuccess = async (tx_ref) => {
 			try {
-				await axios.post("/payments/checkout-success", {
-					sessionId,
+				const response = await axios.post("/payments/checkout-success", {
+					tx_ref,
 				});
-				clearCart();
+				if (response.data.success) {
+					clearCart();
+				} else {
+					setError("Payment verification failed");
+				}
 			} catch (error) {
 				console.log(error);
+				setError(error.response?.data?.message || "Payment verification failed");
 			} finally {
 				setIsProcessing(false);
 			}
 		};
 
-		const sessionId = new URLSearchParams(window.location.search).get("session_id");
-		if (sessionId) {
-			handleCheckoutSuccess(sessionId);
+		// Get tx_ref from URL parameters (Chapa returns this)
+		const urlParams = new URLSearchParams(window.location.search);
+		const tx_ref = urlParams.get("trx_ref") || urlParams.get("tx_ref");
+		const status = urlParams.get("status");
+		
+		if (tx_ref && status === "success") {
+			handleCheckoutSuccess(tx_ref);
+		} else if (status === "failed" || status === "cancelled") {
+			setIsProcessing(false);
+			setError("Payment was cancelled or failed");
 		} else {
 			setIsProcessing(false);
-			setError("No session ID found in the URL");
+			setError("Invalid payment response");
 		}
 	}, [clearCart]);
 
