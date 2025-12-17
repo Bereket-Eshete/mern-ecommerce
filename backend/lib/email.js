@@ -93,3 +93,54 @@ export const sendPasswordResetEmail = async (email, name, resetToken) => {
 		throw new Error('Failed to send password reset email');
 	}
 };
+
+export const sendPaymentConfirmationEmail = async (email, name, order, receiptUrl) => {
+	if (!apiInstance) {
+		console.error('Brevo API not initialized. Cannot send payment confirmation email.');
+		return;
+	}
+
+	try {
+		const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+		
+		sendSmtpEmail.subject = "Payment Confirmation - Order #" + order._id.toString().slice(-6);
+		sendSmtpEmail.htmlContent = `
+			<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+				<h2 style="color: #10b981;">Payment Successful!</h2>
+				<p>Hi ${name},</p>
+				<p>Thank you for your purchase! Your payment has been successfully processed.</p>
+				
+				<div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+					<h3 style="color: #374151; margin-top: 0;">Order Details</h3>
+					<p><strong>Order ID:</strong> #${order._id.toString().slice(-6)}</p>
+					<p><strong>Transaction Reference:</strong> ${order.tx_ref}</p>
+					<p><strong>Total Amount:</strong> ${order.totalAmount} ETB</p>
+					<p><strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
+				</div>
+				
+				<div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+					<h3 style="color: #374151; margin-top: 0;">Items Ordered</h3>
+					${order.products.map(item => `
+						<div style="border-bottom: 1px solid #e5e7eb; padding: 10px 0;">
+							<p style="margin: 5px 0;"><strong>${item.product.name}</strong></p>
+							<p style="margin: 5px 0; color: #6b7280;">Quantity: ${item.quantity} × ${item.price} ETB</p>
+						</div>
+					`).join('')}
+				</div>
+				
+				${receiptUrl ? `<p><a href="${receiptUrl}" style="color: #10b981; text-decoration: none;">View Receipt</a></p>` : ''}
+				
+				<p>Your order is being processed and you'll receive updates via email.</p>
+				<p>Best regards,<br>Ecommerce Store Team</p>
+			</div>
+		`;
+		sendSmtpEmail.sender = {"name": process.env.BREVO_FROM_NAME || "Ecommerce", "email": process.env.BREVO_FROM_EMAIL};
+		sendSmtpEmail.to = [{"email": email, "name": name}];
+
+		const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+		console.log('Payment confirmation email sent successfully to:', email);
+		return result;
+	} catch (error) {
+		console.error('Error sending payment confirmation email:', error);
+	}
+};

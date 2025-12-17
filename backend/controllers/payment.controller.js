@@ -1,6 +1,8 @@
 import { initializePayment, verifyPayment, generateTxRef } from "../lib/chapa.js";
 import Order from "../models/order.model.js";
 import Coupon from "../models/coupon.model.js";
+import User from "../models/user.model.js";
+import { sendPaymentConfirmationEmail } from "../lib/email.js";
 
 export const createCheckoutSession = async (req, res) => {
 	try {
@@ -102,7 +104,7 @@ export const chapaCallback = async (req, res) => {
 			
 			if (verification.status === 'success' && verification.data.status === 'success') {
 				// Update order status
-				const order = await Order.findOne({ tx_ref: tx_ref });
+				const order = await Order.findOne({ tx_ref: tx_ref }).populate('products.product user');
 				if (order) {
 					order.status = 'completed';
 					order.paymentStatus = 'paid';
@@ -115,6 +117,15 @@ export const chapaCallback = async (req, res) => {
 							{ isActive: false }
 						);
 					}
+
+					// Send payment confirmation email
+					const receiptUrl = verification.data.receipt_url || null;
+					await sendPaymentConfirmationEmail(
+						order.user.email,
+						order.user.name,
+						order,
+						receiptUrl
+					);
 				}
 			}
 		} else {
@@ -140,9 +151,24 @@ export const checkoutSuccess = async (req, res) => {
 		const verification = await verifyPayment(tx_ref);
 		
 		if (verification.status === 'success' && verification.data.status === 'success') {
-			const order = await Order.findOne({ tx_ref }).populate('products.product');
+			const order = await Order.findOne({ tx_ref }).populate('products.product user');
 			
 			if (order) {
+				// Send payment confirmation email if not already sent
+				if (order.status !== 'completed') {
+					order.status = 'completed';
+					order.paymentStatus = 'paid';
+					await order.save();
+
+					const receiptUrl = verification.data.receipt_url || null;
+					await sendPaymentConfirmationEmail(
+						order.user.email,
+						order.user.name,
+						order,
+						receiptUrl
+					);
+				}
+
 				res.status(200).json({
 					success: true,
 					message: "Payment successful!",
