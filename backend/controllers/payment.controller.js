@@ -79,17 +79,18 @@ export const createCheckoutSession = async (req, res) => {
 
 export const chapaCallback = async (req, res) => {
 	try {
-		const { trx_ref, status } = req.query;
+		console.log('📨 Chapa callback received:', JSON.stringify(req.body, null, 2));
+		const { tx_ref, status } = req.body;
 		
-		console.log('Chapa callback received:', { trx_ref, status });
+		console.log('🔍 Extracted data:', { tx_ref, status });
 
 		if (status === 'success') {
 			// Verify the payment
-			const verification = await verifyPayment(trx_ref);
+			const verification = await verifyPayment(tx_ref);
 			
 			if (verification.status === 'success' && verification.data.status === 'success') {
 				// Update order status
-				const order = await Order.findOne({ tx_ref: trx_ref });
+				const order = await Order.findOne({ tx_ref: tx_ref });
 				if (order) {
 					order.status = 'completed';
 					order.paymentStatus = 'paid';
@@ -107,7 +108,7 @@ export const chapaCallback = async (req, res) => {
 		} else {
 			// Payment failed, update order status
 			await Order.findOneAndUpdate(
-				{ tx_ref: trx_ref },
+				{ tx_ref: tx_ref },
 				{ status: 'failed', paymentStatus: 'failed' }
 			);
 		}
