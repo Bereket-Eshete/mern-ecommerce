@@ -31,7 +31,7 @@ const setCookies = (res, accessToken, refreshToken) => {
 };
 
 export const signup = async (req, res) => {
-	const { email, password, name } = req.body;
+	const { email, password, name, phoneNumber } = req.body;
 	try {
 		const userExists = await User.findOne({ email });
 
@@ -45,6 +45,7 @@ export const signup = async (req, res) => {
 		const user = await User.create({ 
 			name, 
 			email, 
+			phoneNumber,
 			password,
 			verificationCode: verificationCode,
 			verificationCodeExpiresAt: verificationExpires
