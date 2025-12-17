@@ -71,8 +71,8 @@ export const login = async (req, res) => {
 		const user = await User.findOne({ email });
 
 		if (user && (await user.comparePassword(password))) {
-			// Check if email is verified
-			if (!user.isEmailVerified) {
+			// Check if email is verified (skip for admin users)
+			if (!user.isEmailVerified && user.role !== "admin") {
 				return res.status(400).json({ 
 					message: "Please verify your email before logging in. Check your inbox for the verification link." 
 				});
@@ -268,6 +268,44 @@ export const resendVerificationEmail = async (req, res) => {
 		res.json({ message: "Verification email sent successfully!" });
 	} catch (error) {
 		console.log("Error in resendVerificationEmail controller", error.message);
+		res.status(500).json({ message: "Server error", error: error.message });
+	}
+};
+
+// Create admin user (for development/setup)
+export const createAdmin = async (req, res) => {
+	try {
+		const { email, password, name, adminSecret } = req.body;
+
+		// Simple admin secret check (you can make this more secure)
+		if (adminSecret !== "admin123") {
+			return res.status(403).json({ message: "Invalid admin secret" });
+		}
+
+		const existingUser = await User.findOne({ email });
+		if (existingUser) {
+			return res.status(400).json({ message: "User already exists" });
+		}
+
+		const admin = await User.create({
+			name,
+			email,
+			password,
+			role: "admin",
+			isEmailVerified: true // Auto-verify admin
+		});
+
+		res.status(201).json({
+			message: "Admin created successfully",
+			admin: {
+				id: admin._id,
+				name: admin.name,
+				email: admin.email,
+				role: admin.role
+			}
+		});
+	} catch (error) {
+		console.log("Error in createAdmin controller", error.message);
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
