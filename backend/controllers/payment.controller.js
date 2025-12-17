@@ -55,8 +55,8 @@ export const createCheckoutSession = async (req, res) => {
 			});
 		}
 
-		// Create a pending order
-		const pendingOrder = new Order({
+		// Create a pending order (without stripeSessionId)
+		const orderData = {
 			user: req.user._id,
 			products: products.map((product) => ({
 				product: product._id,
@@ -67,7 +67,10 @@ export const createCheckoutSession = async (req, res) => {
 			tx_ref: tx_ref,
 			status: 'pending',
 			couponCode: couponCode || null,
-		});
+		};
+		
+		// Don't include stripeSessionId for Chapa orders
+		const pendingOrder = new Order(orderData);
 		await pendingOrder.save();
 
 		// Create coupon for large orders

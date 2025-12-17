@@ -31,11 +31,6 @@ const orderSchema = new mongoose.Schema(
 			required: true,
 			min: 0,
 		},
-		stripeSessionId: {
-			type: String,
-			unique: true,
-			sparse: true,
-		},
 		tx_ref: {
 			type: String,
 			unique: true,
