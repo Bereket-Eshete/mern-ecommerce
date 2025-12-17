@@ -33,6 +33,9 @@ const setCookies = (res, accessToken, refreshToken) => {
 export const signup = async (req, res) => {
 	const { email, password, name, phoneNumber } = req.body;
 	try {
+		if (!phoneNumber) {
+			return res.status(400).json({ message: "Phone number is required" });
+		}
 		const userExists = await User.findOne({ email });
 
 		if (userExists) {
