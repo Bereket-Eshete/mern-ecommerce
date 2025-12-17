@@ -272,6 +272,34 @@ export const resendVerificationEmail = async (req, res) => {
 	}
 };
 
+// One-time admin creation endpoint
+export const setupAdmin = async (req, res) => {
+	try {
+		// Check if admin already exists
+		const existingAdmin = await User.findOne({ role: "admin" });
+		if (existingAdmin) {
+			return res.status(400).json({ message: "Admin already exists" });
+		}
+
+		const admin = await User.create({
+			name: "Bereket",
+			email: "bereketeshete89@gmail.com",
+			password: "admin123",
+			role: "admin",
+			isEmailVerified: true
+		});
+
+		res.json({ 
+			message: "Admin created successfully!",
+			email: admin.email,
+			role: admin.role
+		});
+	} catch (error) {
+		console.log("Error in setupAdmin controller", error.message);
+		res.status(500).json({ message: "Server error", error: error.message });
+	}
+};
+
 // Create admin user (for development/setup)
 export const createAdmin = async (req, res) => {
 	try {
