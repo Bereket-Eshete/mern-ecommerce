@@ -19,6 +19,20 @@ export const generateTxRef = async () => {
 // Initialize payment
 export const initializePayment = async (paymentData) => {
 	try {
+		// Validate required fields
+		const requiredFields = ['first_name', 'last_name', 'email', 'phone_number', 'amount', 'tx_ref'];
+		for (const field of requiredFields) {
+			if (!paymentData[field]) {
+				throw new Error(`Missing required field: ${field}`);
+			}
+		}
+
+		console.log('Initializing Chapa payment with data:', {
+			...paymentData,
+			callback_url: process.env.CHAPA_CALLBACK_URL,
+			return_url: `${process.env.CLIENT_URL}/purchase-success`
+		});
+
 		const response = await chapa.initialize({
 			first_name: paymentData.first_name,
 			last_name: paymentData.last_name,
@@ -36,8 +50,13 @@ export const initializePayment = async (paymentData) => {
 		});
 		return response;
 	} catch (error) {
-		console.error('Chapa initialization error:', error);
-		throw error;
+		console.error('Chapa initialization error:', {
+			message: error.message,
+			status: error.status,
+			response: error.response?.data || error.response,
+			fullError: error
+		});
+		throw new Error(`Chapa payment failed: ${error.message || 'Unknown error'}`);
 	}
 };
 
@@ -47,7 +66,12 @@ export const verifyPayment = async (tx_ref) => {
 		const response = await chapa.verify({ tx_ref });
 		return response;
 	} catch (error) {
-		console.error('Chapa verification error:', error);
-		throw error;
+		console.error('Chapa verification error:', {
+			message: error.message,
+			status: error.status,
+			response: error.response?.data || error.response,
+			fullError: error
+		});
+		throw new Error(`Chapa verification failed: ${error.message || 'Unknown error'}`);
 	}
 };
