@@ -14,8 +14,13 @@ const LoginPage = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		try {
-			await login(email, password);
-			navigate('/');
+			const userData = await login(email, password);
+			// Redirect based on user role
+			if (userData.role === 'admin') {
+				navigate('/secret-dashboard');
+			} else {
+				navigate('/');
+			}
 		} catch (error) {
 			// Error is already handled in the store
 		}
