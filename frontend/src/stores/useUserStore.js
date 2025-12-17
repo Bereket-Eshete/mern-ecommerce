@@ -7,7 +7,7 @@ export const useUserStore = create((set, get) => ({
 	loading: false,
 	checkingAuth: true,
 
-	signup: async ({ name, email, password, confirmPassword }) => {
+	signup: async ({ name, email, phoneNumber, password, confirmPassword }) => {
 		set({ loading: true });
 
 		if (password !== confirmPassword) {
@@ -17,7 +17,7 @@ export const useUserStore = create((set, get) => ({
 		}
 
 		try {
-			const res = await axios.post("/auth/signup", { name, email, password });
+			const res = await axios.post("/auth/signup", { name, email, phoneNumber, password });
 			set({ loading: false });
 			toast.success(res.data.message || "Account created! Please check your email to verify.");
 			return res.data;
@@ -123,7 +123,7 @@ axios.interceptors.response.use(
 		// Only handle 401 for auth endpoints, not all requests
 		if (error.response?.status === 401 && error.config?.url?.includes('/auth/')) {
 			// Clear user state on auth failure
-			useUserStore.getState().set({ user: null, checkingAuth: false });
+			useUserStore.setState({ user: null, checkingAuth: false });
 		}
 		return Promise.reject(error);
 	}
