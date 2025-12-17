@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-	baseURL: "https://mern-ecommerce-2-5seq.onrender.com/api",
+	baseURL: import.meta.env.VITE_API_URL || "https://mern-ecommerce-2-5seq.onrender.com/api",
 	withCredentials: true, // send cookies to the server
 });
 
