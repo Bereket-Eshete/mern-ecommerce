@@ -24,7 +24,7 @@ const LoginPage = () => {
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.8 }}
 			>
-				<h2 className='mt-6 text-center text-3xl font-extrabold text-emerald-400'>Create your account</h2>
+				<h2 className='mt-6 text-center text-3xl font-extrabold text-emerald-400'>Sign in to your account</h2>
 			</motion.div>
 
 			<motion.div
@@ -100,6 +100,12 @@ const LoginPage = () => {
 							)}
 						</button>
 					</form>
+
+					<div className='mt-6 text-center'>
+						<Link to='/forgot-password' className='text-sm text-emerald-400 hover:text-emerald-300'>
+							Forgot your password?
+						</Link>
+					</div>
 
 					<p className='mt-8 text-center text-sm text-gray-400'>
 						Not a member?{" "}
