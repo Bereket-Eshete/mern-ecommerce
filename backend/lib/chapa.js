@@ -46,7 +46,7 @@ export const initializePayment = async (paymentData) => {
 			amount: paymentData.amount,
 			tx_ref: paymentData.tx_ref,
 			callback_url: process.env.CHAPA_CALLBACK_URL,
-			return_url: `${process.env.CLIENT_URL}/purchase-success`
+			return_url: `${process.env.CLIENT_URL}/purchase-success?tx_ref=${paymentData.tx_ref}&status=success`
 		};
 
 		console.log('Sending to Chapa:', chapaPayload);

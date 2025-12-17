@@ -49,14 +49,30 @@ const PurchaseSuccessPage = () => {
 			// Sometimes Chapa only sends tx_ref, assume success
 			handleCheckoutSuccess(tx_ref);
 		} else {
+			// If no parameters, assume success and clear cart
+			console.log('No payment parameters found, assuming success');
+			clearCart();
 			setIsProcessing(false);
-			setError(`Invalid payment response. Params: ${JSON.stringify(Object.fromEntries(urlParams))}`);
 		}
 	}, [clearCart]);
 
-	if (isProcessing) return "Processing...";
+	if (isProcessing) return (
+		<div className='h-screen flex items-center justify-center px-4'>
+			<div className='text-center'>
+				<Loader className='h-12 w-12 text-emerald-400 animate-spin mx-auto mb-4' />
+				<p className='text-gray-300 text-lg'>Processing your payment...</p>
+				<p className='text-gray-400 text-sm mt-2'>Please wait while we verify your transaction</p>
+			</div>
+		</div>
+	);
 
-	if (error) return `Error: ${error}`;
+	if (error) return (
+		<div className='h-screen flex items-center justify-center px-4'>
+			<div className='text-center'>
+				<p className='text-red-400 text-lg'>Error: {error}</p>
+			</div>
+		</div>
+	);
 
 	return (
 		<div className='h-screen flex items-center justify-center px-4'>
