@@ -31,7 +31,11 @@ const __dirname = path.resolve();
 
 // CORS configuration
 app.use(cors({
-	origin: [process.env.CLIENT_URL || "http://localhost:5173", "http://localhost:5173"],
+	origin: [
+		process.env.CLIENT_URL || "http://localhost:5173",
+		"http://localhost:5173",
+		"https://mern-ecommerce-one-beta.vercel.app"
+	],
 	credentials: true,
 	optionsSuccessStatus: 200
 }));
