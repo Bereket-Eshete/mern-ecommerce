@@ -131,3 +131,54 @@ export const toggleFeaturedProduct = async (req, res) => {
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
+
+export const updateProduct = async (req, res) => {
+	try {
+		const { name, description, price, image, category } = req.body;
+		const productId = req.params.id;
+
+		const product = await Product.findById(productId);
+		if (!product) {
+			return res.status(404).json({ message: "Product not found" });
+		}
+
+		let imageUrl = product.image;
+
+		// If new image is provided and it's a base64 string, upload to cloudinary
+		if (image && image.startsWith('data:')) {
+			// Delete old image from cloudinary if exists
+			if (product.image) {
+				const publicId = product.image.split("/").pop().split(".")[0];
+				try {
+					await cloudinary.uploader.destroy(`products/${publicId}`);
+				} catch (error) {
+					console.log("Error deleting old image from cloudinary", error);
+				}
+			}
+
+			// Upload new image
+			const cloudinaryResponse = await cloudinary.uploader.upload(image, { folder: "products" });
+			imageUrl = cloudinaryResponse.secure_url;
+		} else if (image && image !== product.image) {
+			// If it's a URL, use it directly
+			imageUrl = image;
+		}
+
+		const updatedProduct = await Product.findByIdAndUpdate(
+			productId,
+			{
+				name,
+				description,
+				price,
+				image: imageUrl,
+				category,
+			},
+			{ new: true }
+		);
+
+		res.json(updatedProduct);
+	} catch (error) {
+		console.log("Error in updateProduct controller", error.message);
+		res.status(500).json({ message: "Server error", error: error.message });
+	}
+};

@@ -10,13 +10,13 @@ const Navbar = () => {
 
 	return (
 		<header className='fixed top-0 left-0 w-full bg-gray-900 bg-opacity-90 backdrop-blur-md shadow-lg z-40 transition-all duration-300 border-b border-emerald-800'>
-			<div className='container mx-auto px-4 py-3'>
-				<div className='flex flex-wrap justify-between items-center'>
-					<Link to='/' className='text-2xl font-bold text-emerald-400 items-center space-x-2 flex'>
+			<div className='container mx-auto px-3 sm:px-4 md:px-6 py-2 sm:py-3'>
+				<div className='flex justify-between items-center'>
+					<Link to='/' className='text-lg sm:text-xl md:text-2xl font-bold text-emerald-400 flex items-center'>
 						E-Commerce
 					</Link>
 
-					<nav className='flex flex-wrap items-center gap-4'>
+					<nav className='flex items-center gap-2 sm:gap-3 md:gap-4'>
 						<Link
 							to={"/"}
 							className='text-gray-300 hover:text-emerald-400 transition duration-300
@@ -66,30 +66,30 @@ const Navbar = () => {
 
 						{user ? (
 							<button
-								className='bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 
-						rounded-md flex items-center transition duration-300 ease-in-out'
+								className='bg-gray-700 hover:bg-gray-600 text-white py-1.5 sm:py-2 px-2 sm:px-3 md:px-4 
+						rounded-md flex items-center transition duration-300 ease-in-out text-sm sm:text-base'
 								onClick={logout}
 							>
-								<LogOut size={18} />
-								<span className='hidden sm:inline ml-2'>Log Out</span>
+								<LogOut size={16} className='sm:w-4 sm:h-4 md:w-5 md:h-5' />
+								<span className='hidden sm:inline ml-1 sm:ml-2'>Log Out</span>
 							</button>
 						) : (
 							<>
 								<Link
 									to={"/signup"}
-									className='bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-4 
-									rounded-md flex items-center transition duration-300 ease-in-out'
+									className='bg-emerald-600 hover:bg-emerald-700 text-white py-1.5 sm:py-2 px-2 sm:px-3 md:px-4 
+									rounded-md flex items-center transition duration-300 ease-in-out text-sm sm:text-base'
 								>
-									<UserPlus className='mr-2' size={18} />
-									Sign Up
+									<UserPlus className='w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 sm:mr-2' />
+									<span className='hidden sm:inline'>Sign Up</span>
 								</Link>
 								<Link
 									to={"/login"}
-									className='bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 
-									rounded-md flex items-center transition duration-300 ease-in-out'
+									className='bg-gray-700 hover:bg-gray-600 text-white py-1.5 sm:py-2 px-2 sm:px-3 md:px-4 
+									rounded-md flex items-center transition duration-300 ease-in-out text-sm sm:text-base'
 								>
-									<LogIn className='mr-2' size={18} />
-									Login
+									<LogIn className='w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 sm:mr-2' />
+									<span className='hidden sm:inline'>Login</span>
 								</Link>
 							</>
 						)}

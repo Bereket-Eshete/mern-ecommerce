@@ -16,6 +16,7 @@ import { useUserStore } from "./stores/useUserStore";
 import { useEffect } from "react";
 import LoadingSpinner from "./components/LoadingSpinner";
 import CartPage from "./pages/CartPage";
+import UserDashboard from "./pages/UserDashboard";
 import { useCartStore } from "./stores/useCartStore";
 import PurchaseSuccessPage from "./pages/PurchaseSuccessPage";
 import PurchaseCancelPage from "./pages/PurchaseCancelPage";
@@ -59,6 +60,7 @@ function App() {
 					/>
 					<Route path='/category/:category' element={<CategoryPage />} />
 					<Route path='/cart' element={user ? <CartPage /> : <Navigate to='/login' />} />
+					<Route path='/dashboard' element={user ? <UserDashboard /> : <Navigate to='/login' />} />
 					<Route path='/dashboard' element={user ? <UserDashboard /> : <Navigate to='/login' />} />
 					<Route
 						path='/purchase-success'

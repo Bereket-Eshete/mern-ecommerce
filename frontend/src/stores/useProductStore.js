@@ -83,4 +83,22 @@ export const useProductStore = create((set) => ({
 			toast.error("Failed to fetch featured products");
 		}
 	},
+	updateProduct: async (productId, productData) => {
+		set({ loading: true });
+		try {
+			const res = await axios.put(`/products/${productId}`, productData);
+			set((prevState) => ({
+				products: prevState.products.map((product) =>
+					product._id === productId ? res.data : product
+				),
+				loading: false,
+			}));
+			toast.success("Product updated successfully!");
+			return res.data;
+		} catch (error) {
+			toast.error(error.response?.data?.message || "Failed to update product");
+			set({ loading: false });
+			throw error;
+		}
+	},
 }));

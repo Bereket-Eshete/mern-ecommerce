@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
-import { Trash, Star } from "lucide-react";
+import { Trash, Star, Edit } from "lucide-react";
 import { useProductStore } from "../stores/useProductStore";
 import { useState } from "react";
 
 const ProductsList = () => {
-	const { deleteProduct, toggleFeaturedProduct, products } = useProductStore();
+	const { deleteProduct, toggleFeaturedProduct, updateProduct, products } = useProductStore();
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [productToDelete, setProductToDelete] = useState(null);
+	const [showEditModal, setShowEditModal] = useState(false);
+	const [productToEdit, setProductToEdit] = useState(null);
+	const [editFormData, setEditFormData] = useState({});
 
 	console.log("products", products);
 
@@ -26,6 +29,36 @@ const ProductsList = () => {
 	const cancelDelete = () => {
 		setShowDeleteModal(false);
 		setProductToDelete(null);
+	};
+
+	const handleEditClick = (product) => {
+		setProductToEdit(product);
+		setEditFormData({
+			name: product.name,
+			description: product.description,
+			price: product.price,
+			category: product.category,
+			image: product.image
+		});
+		setShowEditModal(true);
+	};
+
+	const handleEditSubmit = async (e) => {
+		e.preventDefault();
+		try {
+			await updateProduct(productToEdit._id, editFormData);
+			setShowEditModal(false);
+			setProductToEdit(null);
+			setEditFormData({});
+		} catch (error) {
+			// Error handled in store
+		}
+	};
+
+	const cancelEdit = () => {
+		setShowEditModal(false);
+		setProductToEdit(null);
+		setEditFormData({});
 	};
 
 	return (
@@ -106,12 +139,22 @@ const ProductsList = () => {
 								</button>
 							</td>
 							<td className='px-6 py-4 whitespace-nowrap text-sm font-medium'>
-								<button
-									onClick={() => handleDeleteClick(product)}
-									className='text-red-400 hover:text-red-300'
-								>
-									<Trash className='h-5 w-5' />
-								</button>
+								<div className='flex space-x-2'>
+									<button
+										onClick={() => handleEditClick(product)}
+										className='text-blue-400 hover:text-blue-300'
+										title='Edit Product'
+									>
+										<Edit className='h-5 w-5' />
+									</button>
+									<button
+										onClick={() => handleDeleteClick(product)}
+										className='text-red-400 hover:text-red-300'
+										title='Delete Product'
+									>
+										<Trash className='h-5 w-5' />
+									</button>
+								</div>
 							</td>
 						</tr>
 					))}
@@ -140,6 +183,91 @@ const ProductsList = () => {
 								Delete
 							</button>
 						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Edit Product Modal */}
+			{showEditModal && (
+				<div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
+					<div className='bg-gray-800 rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto'>
+						<h3 className='text-lg font-semibold text-white mb-4'>Edit Product</h3>
+						<form onSubmit={handleEditSubmit} className='space-y-4'>
+							<div>
+								<label className='block text-sm font-medium text-gray-300 mb-1'>Product Name</label>
+								<input
+									type='text'
+									value={editFormData.name}
+									onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+									className='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-emerald-500'
+									required
+								/>
+							</div>
+							<div>
+								<label className='block text-sm font-medium text-gray-300 mb-1'>Description</label>
+								<textarea
+									value={editFormData.description}
+									onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
+									rows='3'
+									className='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-emerald-500'
+									required
+								/>
+							</div>
+							<div>
+								<label className='block text-sm font-medium text-gray-300 mb-1'>Price</label>
+								<input
+									type='number'
+									step='0.01'
+									value={editFormData.price}
+									onChange={(e) => setEditFormData({...editFormData, price: parseFloat(e.target.value)})}
+									className='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-emerald-500'
+									required
+								/>
+							</div>
+							<div>
+								<label className='block text-sm font-medium text-gray-300 mb-1'>Category</label>
+								<select
+									value={editFormData.category}
+									onChange={(e) => setEditFormData({...editFormData, category: e.target.value})}
+									className='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-emerald-500'
+									required
+								>
+									<option value=''>Select Category</option>
+									<option value='jeans'>Jeans</option>
+									<option value='t-shirts'>T-shirts</option>
+									<option value='shoes'>Shoes</option>
+									<option value='glasses'>Glasses</option>
+									<option value='jackets'>Jackets</option>
+									<option value='suits'>Suits</option>
+									<option value='bags'>Bags</option>
+								</select>
+							</div>
+							<div>
+								<label className='block text-sm font-medium text-gray-300 mb-1'>Image URL</label>
+								<input
+									type='url'
+									value={editFormData.image}
+									onChange={(e) => setEditFormData({...editFormData, image: e.target.value})}
+									className='w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-emerald-500'
+									required
+								/>
+							</div>
+							<div className='flex justify-end space-x-4 pt-4'>
+								<button
+									type='button'
+									onClick={cancelEdit}
+									className='px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors'
+								>
+									Cancel
+								</button>
+								<button
+									type='submit'
+									className='px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors'
+								>
+									Update Product
+								</button>
+							</div>
+						</form>
 					</div>
 				</div>
 			)}
