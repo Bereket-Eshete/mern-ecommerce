@@ -1,12 +1,14 @@
-import { ShoppingCart, UserPlus, LogIn, LogOut, Lock, User } from "lucide-react";
+import { ShoppingCart, UserPlus, LogIn, LogOut, Lock, User, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
 import { useCartStore } from "../stores/useCartStore";
+import { useState } from "react";
 
 const Navbar = () => {
 	const { user, logout } = useUserStore();
 	const isAdmin = user?.role === "admin";
 	const { cart } = useCartStore();
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	return (
 		<header className='fixed top-0 left-0 w-full bg-gray-900 bg-opacity-90 backdrop-blur-md shadow-lg z-40 transition-all duration-300 border-b border-emerald-800'>
@@ -16,7 +18,8 @@ const Navbar = () => {
 						E-Commerce
 					</Link>
 
-					<nav className='absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4 sm:gap-6 md:gap-8'>
+					{/* Desktop Navigation */}
+					<nav className='hidden md:flex absolute left-1/2 transform -translate-x-1/2 items-center gap-4 sm:gap-6 md:gap-8'>
 						<Link
 							to={"/"}
 							className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out text-sm sm:text-base'
@@ -37,7 +40,8 @@ const Navbar = () => {
 						</Link>
 					</nav>
 
-					<div className='flex items-center gap-2 sm:gap-3 md:gap-4'>
+					{/* Desktop Auth Buttons */}
+					<div className='hidden md:flex items-center gap-2 sm:gap-3 md:gap-4'>
 						{user && (
 							<>
 								<Link
@@ -108,7 +112,107 @@ const Navbar = () => {
 							</>
 						)}
 					</div>
+
+					{/* Mobile Hamburger */}
+					<button
+						className='md:hidden text-white'
+						onClick={() => setIsMenuOpen(!isMenuOpen)}
+					>
+						{isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+					</button>
 				</div>
+
+				{/* Mobile Menu */}
+				{isMenuOpen && (
+					<div className='md:hidden mt-4 pb-4 border-t border-gray-700'>
+						<div className='flex flex-col space-y-4 pt-4'>
+							<Link
+								to={"/"}
+								className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out'
+								onClick={() => setIsMenuOpen(false)}
+							>
+								Home
+							</Link>
+							<Link
+								to={"/about"}
+								className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out'
+								onClick={() => setIsMenuOpen(false)}
+							>
+								About
+							</Link>
+							<Link
+								to={"/contact"}
+								className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out'
+								onClick={() => setIsMenuOpen(false)}
+							>
+								Contact
+							</Link>
+							{user && (
+								<>
+									<Link
+										to={"/cart"}
+										className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out flex items-center'
+										onClick={() => setIsMenuOpen(false)}
+									>
+										<ShoppingCart className='mr-2' size={20} />
+										Cart {cart.length > 0 && `(${cart.length})`}
+									</Link>
+									{!isAdmin && (
+										<Link
+											to={"/dashboard"}
+											className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out flex items-center'
+											onClick={() => setIsMenuOpen(false)}
+										>
+											<User className='mr-2' size={20} />
+											Dashboard
+										</Link>
+									)}
+								</>
+							)}
+							{isAdmin && (
+								<Link
+									to={"/secret-dashboard"}
+									className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out flex items-center'
+									onClick={() => setIsMenuOpen(false)}
+								>
+									<Lock className='mr-2' size={20} />
+									Admin Dashboard
+								</Link>
+							)}
+							{user ? (
+								<button
+									className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out flex items-center'
+									onClick={() => {
+										logout();
+										setIsMenuOpen(false);
+									}}
+								>
+									<LogOut className='mr-2' size={20} />
+									Log Out
+								</button>
+							) : (
+								<>
+									<Link
+										to={"/signup"}
+										className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out flex items-center'
+										onClick={() => setIsMenuOpen(false)}
+									>
+										<UserPlus className='mr-2' size={20} />
+										Sign Up
+									</Link>
+									<Link
+										to={"/login"}
+										className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out flex items-center'
+										onClick={() => setIsMenuOpen(false)}
+									>
+										<LogIn className='mr-2' size={20} />
+										Login
+									</Link>
+								</>
+							)}
+						</div>
+					</div>
+				)}
 			</div>
 		</header>
 	);
