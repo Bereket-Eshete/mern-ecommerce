@@ -11,6 +11,9 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import UserDashboard from "./pages/UserDashboard";
 
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
 import { Toaster } from "react-hot-toast";
 import { useUserStore } from "./stores/useUserStore";
 import { useEffect } from "react";
@@ -65,7 +68,10 @@ function App() {
 						element={user ? <PurchaseSuccessPage /> : <Navigate to='/login' />}
 					/>
 					<Route path='/purchase-cancel' element={user ? <PurchaseCancelPage /> : <Navigate to='/login' />} />
+					<Route path='/about' element={<AboutPage />} />
+					<Route path='/contact' element={<ContactPage />} />
 				</Routes>
+				<Footer />
 			</div>
 			<Toaster />
 		</div>

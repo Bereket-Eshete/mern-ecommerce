@@ -26,7 +26,7 @@ const UserDashboard = () => {
 			setProfileData({
 				name: user.name,
 				email: user.email,
-				phone: user.phone || "",
+				phone: user.phoneNumber || "",
 				address: user.address || ""
 			});
 		}
@@ -181,7 +181,7 @@ Thank you for shopping with us!
 								) : (
 									<p className='bg-gray-700 p-3 rounded-md text-white flex items-center'>
 										<Phone className='w-4 h-4 mr-2' />
-										{user?.phone || 'Not provided'}
+										{user?.phoneNumber || 'Not provided'}
 									</p>
 								)}
 							</div>

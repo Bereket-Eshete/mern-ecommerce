@@ -16,14 +16,28 @@ const Navbar = () => {
 						E-Commerce
 					</Link>
 
-					<nav className='flex items-center gap-2 sm:gap-3 md:gap-4'>
+					<nav className='absolute left-1/2 transform -translate-x-1/2 flex items-center gap-4 sm:gap-6 md:gap-8'>
 						<Link
 							to={"/"}
-							className='text-gray-300 hover:text-emerald-400 transition duration-300
-					 ease-in-out'
+							className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out text-sm sm:text-base'
 						>
 							Home
 						</Link>
+						<Link
+							to={"/about"}
+							className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out text-sm sm:text-base'
+						>
+							About
+						</Link>
+						<Link
+							to={"/contact"}
+							className='text-gray-300 hover:text-emerald-400 transition duration-300 ease-in-out text-sm sm:text-base'
+						>
+							Contact
+						</Link>
+					</nav>
+
+					<div className='flex items-center gap-2 sm:gap-3 md:gap-4'>
 						{user && (
 							<>
 								<Link
@@ -93,7 +107,7 @@ const Navbar = () => {
 								</Link>
 							</>
 						)}
-					</nav>
+					</div>
 				</div>
 			</div>
 		</header>
